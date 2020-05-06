@@ -4,6 +4,7 @@ import asyncio
 from asyncio import coroutines
 import concurrent.futures
 from asyncio import futures
+from text_util import toMathSans
 
 logging.basicConfig(level=logging.INFO)
 
@@ -81,7 +82,10 @@ async def on_message(message):
     if len(message.attachments) > 0:
         content += ' ' + message.attachments[0].url
 
-    irc.send_my_message("%s: %s" % (message.author.name, content))
+    # Note(jpc) for nick escaping
+    authorName = toMathSans(message.author.name)
+    irc.send_my_message("%s: %s" % (authorName, content))
+
 
 @client.event
 async def on_ready():
