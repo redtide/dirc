@@ -4,6 +4,7 @@ import asyncio
 from asyncio import coroutines
 import concurrent.futures
 from asyncio import futures
+import textwrap
 
 logging.basicConfig(level=logging.INFO)
 
@@ -69,19 +70,21 @@ async def on_message(message):
     if message.channel != channel:
         return
 
+    content = message.clean_content.strip()
+
     if message.author.name == settings["botowner"]:
-        if message.content.strip() == "!quit":
+        if content == "!quit":
             await client.close()
             return
 
     with thread_lock:
-        print("[Discord] %s: %s" % (message.author.name, message.content.strip()))
+        print("[Discord] {:s}: {:s}".format(message.author.name, content))
 
-    content = message.clean_content
     if len(message.attachments) > 0:
         content += ' ' + message.attachments[0].url
 
-    irc.send_my_message("%s: %s" % (message.author.name, content))
+    for line in textwrap.wrap(content, width=120):
+        irc.send_my_message("{:s}: {:s}".format(message.author.name, line))
 
 @client.event
 async def on_ready():
